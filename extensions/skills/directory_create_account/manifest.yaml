@@ -1,0 +1,13 @@
+name: directory.create_account
+version: 1.0.0
+type: integration
+permissions_required:
+  - directory:create
+idempotency:
+  - employee_id
+integration: directory
+model: none
+timeout_s: 15
+retry:
+  max: 3
+  backoff: exponential

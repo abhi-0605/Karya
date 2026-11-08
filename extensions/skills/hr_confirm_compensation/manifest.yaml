@@ -1,0 +1,9 @@
+name: hr.confirm_compensation
+version: 1.0.0
+type: rules
+permissions_required:
+  - compensation:confirm
+idempotency:
+  - employee_id
+model: none
+timeout_s: 30

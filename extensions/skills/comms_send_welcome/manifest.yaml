@@ -1,0 +1,9 @@
+name: comms.send_welcome
+version: 1.0.0
+type: llm
+permissions_required:
+  - comms:send
+idempotency:
+  - employee_id
+model: small
+timeout_s: 20

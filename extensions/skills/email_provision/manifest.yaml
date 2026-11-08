@@ -1,0 +1,13 @@
+name: email.provision
+version: 1.0.0
+type: integration
+permissions_required:
+  - email:provision
+idempotency:
+  - employee_id
+integration: email
+model: none
+timeout_s: 15
+retry:
+  max: 3
+  backoff: exponential

@@ -1,0 +1,54 @@
+id: onboarding
+version: 1
+trigger: employee.hired
+description: "AI-Native employee onboarding workflow from hire to Day 30"
+inputs:
+  - employee_id
+steps:
+  - id: create_directory_account
+    skill: directory.create_account
+    mode: auto
+    timeout_s: 15
+
+  - id: provision_email
+    skill: email.provision
+    depends_on:
+      - create_directory_account
+    mode: auto
+    timeout_s: 15
+
+  - id: allocate_laptop
+    skill: assets.allocate_laptop
+    mode: auto
+    sla_minutes: 30
+    on_failure: human_queue
+    timeout_s: 20
+
+  - id: issue_access_card
+    skill: admin.issue_access_card
+    depends_on:
+      - create_directory_account
+    mode: auto
+    timeout_s: 15
+
+  - id: setup_payroll
+    skill: payroll.setup_employee
+    mode: auto
+    timeout_s: 20
+
+  - id: confirm_compensation
+    skill: hr.confirm_compensation
+    mode: approval
+    approver_role: hrbp
+    action: compensation.confirm
+
+  - id: assign_buddy
+    skill: manager.assign_buddy
+    mode: auto
+
+  - id: welcome_message
+    skill: comms.send_welcome
+    depends_on:
+      - provision_email
+    mode: auto
+    llm: small

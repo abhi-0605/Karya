@@ -1,0 +1,13 @@
+name: payroll.setup_employee
+version: 1.0.0
+type: integration
+permissions_required:
+  - payroll:setup
+idempotency:
+  - employee_id
+integration: payroll
+model: none
+timeout_s: 20
+retry:
+  max: 3
+  backoff: exponential

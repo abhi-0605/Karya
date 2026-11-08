@@ -1,0 +1,14 @@
+name: assets.allocate_laptop
+version: 1.2.0
+type: integration
+permissions_required:
+  - asset:allocate
+idempotency:
+  - employee_id
+  - asset_type
+integration: it_assets
+model: none
+timeout_s: 20
+retry:
+  max: 3
+  backoff: exponential

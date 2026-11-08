@@ -1,0 +1,9 @@
+name: manager.assign_buddy
+version: 1.0.0
+type: rules
+permissions_required:
+  - manager:assign_buddy
+idempotency:
+  - employee_id
+model: none
+timeout_s: 15
