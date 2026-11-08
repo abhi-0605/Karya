@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 100% (49/49 tasks verified DONE)
-- Current phase: P8 Complete & Demo-Ready (Audit Passed)
-- Last updated: 2026-11-08T19:18:00+05:30
+- Overall completion: 100% (57/57 tasks verified DONE)
+- Current phase: Complete & Verified (Release v1.0 Ready)
+- Last updated: 2026-11-08T19:44:00+05:30
 - Last agent/session: 3
 
 ## How to Run (kept current)
@@ -98,20 +98,17 @@ docker compose up --build
 | T054 | Speed tooling for live day (_template.yaml, new_workflow.py, EXTENSION_PLAYBOOK.md) | P9 | DONE | extensions/workflows/_template.yaml, scripts/new_workflow.py, docs/EXTENSION_PLAYBOOK.md | Scaffold tool & HR cheat sheet |
 | T055 | Number defensibility (eval_router.py, router threshold eval, results.md) | P9 | DONE | scripts/eval_router.py, scripts/bench.py, docs/results.md, data/bench_metrics.csv | 50 labelled queries, threshold eval, exact formulas |
 | T056 | Round 1 submission package (/submission/ARCHITECTURE_DOC, VIDEO_SCRIPT, QA_PREP) | P9 | DONE | submission/ARCHITECTURE_DOC.md, submission/VIDEO_SCRIPT.md, submission/QA_PREP.md | 6-page arch doc, 5-min script, 15 hard QA |
-| T057 | Final release check & verification | P9 | IN_PROGRESS | README.md, PROGRESS.md | Full test suite, git commit, release tag |
+| T057 | Final release check & verification | P9 | DONE | - | 44/44 tests passed, 0 core diffs, v1.0 tagged |
 
 ## Currently In Progress
-- **T050**: One-command local runner (`scripts/run_all.py` + `make dev`).
-  - Checking ports 8001 (mocks), 8000 (backend), 8501 (dashboard) before launching.
-  - Starting all 3 processes with clean interleaved logging and coordinated graceful shutdown.
-  - Adding `make dev` and README top quick-start section.
+- All 57 tasks complete and verified. Hackathon prototype ready for submission.
 
 ## Next 5 Steps (ordered, concrete)
-1. T050: Build `scripts/run_all.py`, test port conflict detection, update Makefile & README.
-2. T051-T053: Execute the 3 surprise extension test rehearsals (Probation, ID Reprint, Transfer), timing each and confirming 0 changes in `/core`.
-3. T054: Author `_template.yaml`, `scripts/new_workflow.py`, and `docs/EXTENSION_PLAYBOOK.md`.
-4. T055: Build labelled router eval (`scripts/eval_router.py`), update `docs/results.md` with formula derivations and re-run benchmark.
-5. T056-T057: Write the complete submission package in `/submission/`, run full test suite, commit, and update release tag.
+1. Round 1 submission assets ready in `/submission/` (`ARCHITECTURE_DOC.md`, `VIDEO_SCRIPT.md`, `QA_PREP.md`).
+2. Live demo ready via `make dev` (or `docker compose up`).
+3. 6-minute live script ready in `docs/DEMO_RUNBOOK.md`.
+4. Live extension test cheat sheet ready in `docs/EXTENSION_PLAYBOOK.md`.
+5. 44/44 tests passing clean.
 2. 44/44 tests pass.
 3. Hackathon demo ready: Pitch -> Happy Path -> Reserved Decision -> Safe Failure -> Kill Switch -> Chat -> Dashboard.
 
