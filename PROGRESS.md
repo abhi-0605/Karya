@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 46% (22/48 tasks verified DONE)
-- Current phase: P4 (Human Queue, Kill Switch UI API, and Safe Failure Lifecycle)
-- Last updated: 2026-11-08T11:35:00+05:30
+- Overall completion: 52% (25/48 tasks verified DONE)
+- Current phase: P5 (PII Gateway, Model Router, Cost Meter & Deterministic LLM Fallback)
+- Last updated: 2026-11-08T18:37:00+05:30
 - Last agent/session: 2
 
 ## How to Run (kept current)
@@ -24,7 +24,7 @@ $env:DATABASE_URL = "sqlite+aiosqlite:///./karyaos.db"   # or postgresql+asyncpg
 # 4. Start backend (port 8000):
 cd backend && & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m uvicorn app.main:app --port 8000 --reload
 
-# 5. Run all 20 tests:
+# 5. Run all 21 tests:
 & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m pytest tests/ -v
 
 # 6. Docker full stack (PostgreSQL + Redis + Mocks + Backend + Frontend):
@@ -56,10 +56,10 @@ docker compose up --build
 | T020 | RBAC engine (agent permissions ⊆ acting user permissions) | P3 | DONE | core/rbac/engine.py | Delegation intersection verified |
 | T021 | Policy unit tests (CI-blocking) | P3 | DONE | tests/policy/test_policies.py | 5/5 policy tests passing |
 | T022 | Reserved-decision enforcement tests | P3 | DONE | tests/test_reserved.py | 5/5 reserved & RBAC tests passing |
-| T023 | Human Queue (enqueue on fail/low-conf/conflict + resolve API) | P4 | IN_PROGRESS | core/engine/human_queue.py, backend/app/api/human_queue.py | Wiring endpoints & resolution |
-| T024 | Kill switch (flag table, Redis pub/sub invalidation, <=1s cache) | P4 | TODO | core/killswitch/killswitch.py, backend/app/api/admin.py | Kill switch API |
-| T025 | Kill switch test (pause IT agent -> next step parks in queue) | P4 | TODO | tests/test_killswitch.py | P4 milestone |
-| T026 | PII gateway (mask Aadhaar, PAN, phone, email, bank details) | P5 | TODO | core/pii/masker.py | Regex + Indian recognisers |
+| T023 | Human Queue (enqueue on fail/low-conf/conflict + resolve API) | P4 | DONE | core/engine/human_queue.py, backend/app/api/human_queue.py | List, context bundle, resolve endpoints |
+| T024 | Kill switch (flag table, Redis pub/sub invalidation, <=1s cache) | P4 | DONE | core/killswitch/killswitch.py, backend/app/api/admin.py | Pause / resume by scope and name |
+| T025 | Kill switch test (pause IT agent -> next step parks in queue) | P4 | DONE | tests/test_killswitch.py | Real-time pause & human queue resolution verified |
+| T026 | PII gateway (mask Aadhaar, PAN, phone, email, bank details) | P5 | IN_PROGRESS | core/pii/masker.py | Regex + Indian recognisers |
 | T027 | Model router (LiteLLM / Gemini with deterministic fake fallback) | P5 | TODO | core/llm/router.py | Confidence < 0.75 -> escalation |
 | T028 | Cost meter (tokens, model, INR per step, infra share) | P5 | TODO | core/llm/meter.py, config/infra_costs.yaml | Per-step and per-workflow ₹ |
 | T029 | PII leak test (assert no Aadhaar/PAN in outbound model payloads) | P5 | TODO | tests/test_pii.py | P5 milestone |
@@ -84,15 +84,16 @@ docker compose up --build
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | TODO | - | Final milestone |
 
 ## Currently In Progress
-- **T023**: Human Queue API (`backend/app/api/human_queue.py`).
-  - Wire list queue items, get item by id, and resolve item endpoints with context bundle.
+- **T026**: PII Gateway (`core/pii/masker.py`).
+  - Implements masking and anonymization with Indian entity recognizers: Aadhaar (12 digits), PAN (5 letters + 4 digits + 1 letter), Indian phone (+91/10-digit), email, bank account, and UAN.
+  - Aadhaar, PAN, and bank details are blocked completely from external models.
 
 ## Next 5 Steps (ordered, concrete)
-1. T023: Complete Human Queue endpoints in `backend/app/api/human_queue.py`.
-2. T024: Wire Kill Switch endpoints in `backend/app/api/admin.py` (pause / resume by scope and name).
-3. T025: Create `tests/test_killswitch.py` verifying real-time pause and human queue item creation with context.
-4. T026: Build PII Gateway (`core/pii/masker.py`) with Indian entity recognizers (Aadhaar, PAN, phone, email, bank details).
-5. T027 & T028: Build Model Router & Cost Meter (`core/llm/`).
+1. T026: Build `core/pii/masker.py` and outbound audit logging for sanitized payloads.
+2. T027 & T030: Build `core/llm/fake_provider.py` and `core/llm/router.py` (routing rule: confidence < 0.75 -> escalation).
+3. T028: Build `core/llm/meter.py` (records tokens, model tier, INR cost per step, and infra share).
+4. T029: Implement `tests/test_pii.py` and `tests/test_router_and_meter.py`.
+5. Move to Phase P6: Conversational Assistant & Policy RAG.
 
 ## Decisions Log
 | Decision | Reason | Date |
@@ -107,7 +108,7 @@ docker compose up --build
 | Plain code policy evaluator | Rules before models: deterministic, zero cost, auditable policy@version | 2026-11-08 |
 
 ## Known Issues / Bugs / Tech Debt
-- None (all 20 tests passing clean).
+- None (all 21 tests passing clean).
 
 ## Assumptions
 1. Mock APIs: Built in `mocks/main.py` with switchable failure modes (503/timeout) via `MOCK_{SERVICE}_FAIL_MODE`.
@@ -116,11 +117,12 @@ docker compose up --build
 4. Single-tenant TBO organization.
 
 ## Test Status
-- 20/20 tests passing (100%):
+- 21/21 tests passing (100%):
   - `tests/policy/test_policies.py`: 5 passed
   - `tests/test_engine.py`: 7 passed
   - `tests/test_idempotency.py`: 2 passed
   - `tests/test_reserved.py`: 5 passed
+  - `tests/test_killswitch.py`: 1 passed
   - `tests/test_workflow_e2e.py`: 1 passed
 
 ## Handoff Notes
