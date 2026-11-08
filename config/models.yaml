@@ -1,0 +1,11 @@
+default:
+  provider: fake
+  model: fake
+  cost_per_1k_tokens_inr: 0.0
+escalation:
+  provider: fake
+  model: fake
+  cost_per_1k_tokens_inr: 0.0
+router:
+  confidence_threshold: 0.75
+  max_small_tokens: 3000

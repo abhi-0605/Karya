@@ -1,0 +1,31 @@
+integrations:
+  it_assets:
+    base_url: "${MOCK_API_BASE_URL}/it"
+    idempotency_header: "Idempotency-Key"
+    timeout_s: 20
+    retry: {max: 3, backoff: exponential}
+    circuit_breaker: {threshold: 3, reset_s: 60}
+  admin_cards:
+    base_url: "${MOCK_API_BASE_URL}/admin"
+    idempotency_header: "Idempotency-Key"
+    timeout_s: 15
+    retry: {max: 3, backoff: exponential}
+    circuit_breaker: {threshold: 3, reset_s: 60}
+  payroll:
+    base_url: "${MOCK_API_BASE_URL}/payroll"
+    idempotency_header: "Idempotency-Key"
+    timeout_s: 20
+    retry: {max: 3, backoff: exponential}
+    circuit_breaker: {threshold: 3, reset_s: 60}
+  email:
+    base_url: "${MOCK_API_BASE_URL}/email"
+    idempotency_header: "Idempotency-Key"
+    timeout_s: 10
+    retry: {max: 3, backoff: exponential}
+    circuit_breaker: {threshold: 3, reset_s: 60}
+  directory:
+    base_url: "${MOCK_API_BASE_URL}/directory"
+    idempotency_header: "Idempotency-Key"
+    timeout_s: 10
+    retry: {max: 3, backoff: exponential}
+    circuit_breaker: {threshold: 3, reset_s: 60}

@@ -1,0 +1,24 @@
+version: 1
+updated_by: system
+reserved:
+  - action: resignation.accept
+    approver: [hr_head]
+  - action: hiring.final_decision
+    approver: [hiring_manager, hrbp]
+  - action: compensation.confirm
+    approver: [hrbp, finance_head]
+  - action: compensation.change
+    approver: [hrbp, finance_head]
+  - action: disciplinary.any
+    approver: [hr_head]
+  - action: complaint.posh
+    mode: route_only
+  - action: complaint.grievance
+    mode: route_only
+  - action: complaint.whistleblower
+    mode: route_only
+  - action: payroll.run_signoff
+    approver: [finance_head]
+  - action: policy.exception
+    approver: [hrbp]
+minimum_set_locked: true

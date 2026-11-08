@@ -1,0 +1,79 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: karya
+      POSTGRES_PASSWORD: karya
+      POSTGRES_DB: karyaos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U karya"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mock-apis:
+    build:
+      context: ./mocks
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      MOCK_IT_FAIL_MODE: ${MOCK_IT_FAIL_MODE:-none}
+      MOCK_ADMIN_FAIL_MODE: ${MOCK_ADMIN_FAIL_MODE:-none}
+      MOCK_PAYROLL_FAIL_MODE: ${MOCK_PAYROLL_FAIL_MODE:-none}
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://karya:karya@postgres:5432/karyaos
+      REDIS_URL: redis://redis:6379/0
+      MOCK_API_BASE_URL: http://mock-apis:8001
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mock-apis:
+        condition: service_started
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
