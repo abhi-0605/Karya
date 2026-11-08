@@ -1,0 +1,33 @@
+id: probation
+version: 2
+effective_from: 2025-01-01
+description: "Probation duration and review requirements by grade"
+rules:
+  - name: standard_probation
+    when:
+      grade: [L1, L2, L3]
+    then:
+      probation_days: 90
+      requires_manager_review: true
+      extension_max_days: 90
+
+  - name: leadership_probation
+    when:
+      grade: [L4, L5, L6]
+    then:
+      probation_days: 180
+      requires_manager_review: true
+      extension_max_days: 90
+
+tests:
+  - given:
+      grade: L2
+    expect:
+      probation_days: 90
+      requires_manager_review: true
+
+  - given:
+      grade: L6
+    expect:
+      probation_days: 180
+      requires_manager_review: true

@@ -1,0 +1,32 @@
+id: notice_period
+version: 4
+effective_from: 2025-04-01
+description: "Statutory and organization notice period requirements by employee grade"
+rules:
+  - name: junior_notice_days
+    when:
+      grade: [L1, L2, L3]
+    then:
+      notice_days: 30
+      buyout_allowed: true
+
+  - name: senior_notice_days
+    when:
+      grade: [L4, L5, L6]
+    then:
+      notice_days: 90
+      buyout_allowed: false
+      hr_head_approval_required: true
+
+tests:
+  - given:
+      grade: L2
+    expect:
+      notice_days: 30
+      buyout_allowed: true
+
+  - given:
+      grade: L5
+    expect:
+      notice_days: 90
+      buyout_allowed: false

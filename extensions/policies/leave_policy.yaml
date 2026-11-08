@@ -1,0 +1,35 @@
+id: leave_policy
+version: 1
+effective_from: 2025-01-01
+description: "Annual leave entitlement calculation by employee grade"
+rules:
+  - name: standard_leave
+    when:
+      grade: [L1, L2, L3]
+    then:
+      annual_privilege_leave: 18
+      casual_leave: 12
+      sick_leave: 12
+      maternity_leave_weeks: 26
+
+  - name: executive_leave
+    when:
+      grade: [L4, L5, L6]
+    then:
+      annual_privilege_leave: 24
+      casual_leave: 12
+      sick_leave: 12
+      maternity_leave_weeks: 26
+
+tests:
+  - given:
+      grade: L3
+    expect:
+      annual_privilege_leave: 18
+      casual_leave: 12
+
+  - given:
+      grade: L5
+    expect:
+      annual_privilege_leave: 24
+      casual_leave: 12

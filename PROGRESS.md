@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 33% (16/48 tasks verified DONE)
-- Current phase: P3 (Policy Engine, Reserved Decisions, Approvals & RBAC)
-- Last updated: 2026-11-08T11:32:00+05:30
+- Overall completion: 46% (22/48 tasks verified DONE)
+- Current phase: P4 (Human Queue, Kill Switch UI API, and Safe Failure Lifecycle)
+- Last updated: 2026-11-08T11:35:00+05:30
 - Last agent/session: 2
 
 ## How to Run (kept current)
@@ -24,7 +24,7 @@ $env:DATABASE_URL = "sqlite+aiosqlite:///./karyaos.db"   # or postgresql+asyncpg
 # 4. Start backend (port 8000):
 cd backend && & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m uvicorn app.main:app --port 8000 --reload
 
-# 5. Run all tests:
+# 5. Run all 20 tests:
 & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m pytest tests/ -v
 
 # 6. Docker full stack (PostgreSQL + Redis + Mocks + Backend + Frontend):
@@ -50,14 +50,14 @@ docker compose up --build
 | T014 | Retry with exponential backoff per integration | P2 | DONE | core/gateway/retry.py | Exponential backoff + jitter |
 | T015 | Circuit breaker per integration | P2 | DONE | core/gateway/circuit_breaker.py | CLOSED -> OPEN (3 fails) -> HALF_OPEN |
 | T016 | Idempotency test (forced-retry / crash-mid-call -> exactly 1 laptop) | P2 | DONE | tests/test_idempotency.py | Verified 1 laptop in ledger & CB trip |
-| T017 | Policy engine: YAML rule evaluator (rules-first, date maths, policy checks) | P3 | IN_PROGRESS | core/policy/engine.py, extensions/policies/* | Notice period & probation rules |
-| T018 | Reserved-decision config loader + load-time auto-mode validator | P3 | TODO | config/reserved_decisions.yaml, core/engine/ | Reserved steps cannot run auto |
-| T019 | Approval service + API (agent tokens REJECTED) | P3 | TODO | core/engine/approvals.py, backend/app/api/approvals.py | Hard reject on principal_type!=human |
-| T020 | RBAC engine (agent permissions ⊆ acting user permissions) | P3 | TODO | core/rbac/ | Permissions intersection |
-| T021 | Policy unit tests (CI-blocking) | P3 | TODO | tests/policy/ | Notice, probation, leave tests |
-| T022 | Reserved-decision enforcement tests | P3 | TODO | tests/test_reserved.py | P3 milestone |
-| T023 | Human Queue (enqueue on fail/low-conf/conflict + resolve API) | P4 | TODO | core/engine/human_queue.py, backend/app/api/human_queue.py | Context bundle attached |
-| T024 | Kill switch (flag table, Redis pub/sub invalidation, <=1s cache) | P4 | TODO | core/killswitch/killswitch.py, backend/app/api/admin.py | Checked before every step |
+| T017 | Policy engine: YAML rule evaluator (rules-first, date maths, policy checks) | P3 | DONE | core/policy/engine.py, extensions/policies/* | notice_period, probation, leave_policy |
+| T018 | Reserved-decision config loader + load-time auto-mode validator | P3 | DONE | core/engine/validator.py, config/reserved_decisions.yaml | Blocks auto mode for reserved steps |
+| T019 | Approval service + API (agent tokens REJECTED) | P3 | DONE | core/engine/approvals.py, backend/app/api/approvals.py | Hard reject on principal_type!=human |
+| T020 | RBAC engine (agent permissions ⊆ acting user permissions) | P3 | DONE | core/rbac/engine.py | Delegation intersection verified |
+| T021 | Policy unit tests (CI-blocking) | P3 | DONE | tests/policy/test_policies.py | 5/5 policy tests passing |
+| T022 | Reserved-decision enforcement tests | P3 | DONE | tests/test_reserved.py | 5/5 reserved & RBAC tests passing |
+| T023 | Human Queue (enqueue on fail/low-conf/conflict + resolve API) | P4 | IN_PROGRESS | core/engine/human_queue.py, backend/app/api/human_queue.py | Wiring endpoints & resolution |
+| T024 | Kill switch (flag table, Redis pub/sub invalidation, <=1s cache) | P4 | TODO | core/killswitch/killswitch.py, backend/app/api/admin.py | Kill switch API |
 | T025 | Kill switch test (pause IT agent -> next step parks in queue) | P4 | TODO | tests/test_killswitch.py | P4 milestone |
 | T026 | PII gateway (mask Aadhaar, PAN, phone, email, bank details) | P5 | TODO | core/pii/masker.py | Regex + Indian recognisers |
 | T027 | Model router (LiteLLM / Gemini with deterministic fake fallback) | P5 | TODO | core/llm/router.py | Confidence < 0.75 -> escalation |
@@ -84,15 +84,15 @@ docker compose up --build
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | TODO | - | Final milestone |
 
 ## Currently In Progress
-- **T017**: Policy engine (`core/policy/engine.py`) and policy YAMLs (`extensions/policies/notice_period.yaml`, `probation.yaml`).
-  - Evaluates rules deterministically in code (zero LLM tokens, versioned, testable).
+- **T023**: Human Queue API (`backend/app/api/human_queue.py`).
+  - Wire list queue items, get item by id, and resolve item endpoints with context bundle.
 
 ## Next 5 Steps (ordered, concrete)
-1. T017 & T021: Build `core/policy/engine.py`, policy YAML definitions in `extensions/policies/`, and unit tests in `tests/policy/`.
-2. T018: Build load-time reserved decision validator (`core/engine/validator.py`).
-3. T019 & T022: Wire approval API endpoints and write `tests/test_reserved.py` asserting that agents cannot approve.
-4. T020: Implement RBAC engine with permissions intersection rule (`core/rbac/engine.py`).
-5. Move to Phase P4: Human Queue & Kill Switch UI API.
+1. T023: Complete Human Queue endpoints in `backend/app/api/human_queue.py`.
+2. T024: Wire Kill Switch endpoints in `backend/app/api/admin.py` (pause / resume by scope and name).
+3. T025: Create `tests/test_killswitch.py` verifying real-time pause and human queue item creation with context.
+4. T026: Build PII Gateway (`core/pii/masker.py`) with Indian entity recognizers (Aadhaar, PAN, phone, email, bank details).
+5. T027 & T028: Build Model Router & Cost Meter (`core/llm/`).
 
 ## Decisions Log
 | Decision | Reason | Date |
@@ -104,9 +104,10 @@ docker compose up --build
 | Deterministic fake LLM provider | Ensures end-to-end execution even with zero API keys or network cutoffs | 2026-11-08 |
 | Synchronize DB operations in workflow state machine via asyncio.Lock | AsyncSession cannot be accessed concurrently across tasks | 2026-11-08 |
 | Circuit breaker: threshold 3, reset 30s | Fails fast when external fulfillment APIs are 503/timeout | 2026-11-08 |
+| Plain code policy evaluator | Rules before models: deterministic, zero cost, auditable policy@version | 2026-11-08 |
 
 ## Known Issues / Bugs / Tech Debt
-- None (all 10 tests passing clean).
+- None (all 20 tests passing clean).
 
 ## Assumptions
 1. Mock APIs: Built in `mocks/main.py` with switchable failure modes (503/timeout) via `MOCK_{SERVICE}_FAIL_MODE`.
@@ -115,10 +116,12 @@ docker compose up --build
 4. Single-tenant TBO organization.
 
 ## Test Status
-- `tests/test_engine.py`: 7/7 PASSED.
-- `tests/test_idempotency.py`: 2/2 PASSED.
-- `tests/test_workflow_e2e.py`: 1/1 PASSED.
-- Total: 10/10 tests passing (100%).
+- 20/20 tests passing (100%):
+  - `tests/policy/test_policies.py`: 5 passed
+  - `tests/test_engine.py`: 7 passed
+  - `tests/test_idempotency.py`: 2 passed
+  - `tests/test_reserved.py`: 5 passed
+  - `tests/test_workflow_e2e.py`: 1 passed
 
 ## Handoff Notes
 - Work strictly ONE task at a time. No parallel subagents.
