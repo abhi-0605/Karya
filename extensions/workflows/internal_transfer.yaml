@@ -1,0 +1,46 @@
+id: internal_transfer
+version: 1
+trigger: employee.transfer_requested
+description: "Internal department transfer with reserved compensation/role change barrier and parallel updates"
+inputs:
+  - employee_id
+  - new_department
+  - new_role
+  - new_grade
+  - new_manager_id
+steps:
+  - id: approve_role_and_grade_change
+    skill: hr.confirm_compensation
+    action: compensation.change
+    mode: approval
+    approver_role: hrbp
+
+  - id: update_directory_department
+    skill: directory.create_account
+    depends_on:
+      - approve_role_and_grade_change
+    mode: auto
+    timeout_s: 15
+
+  - id: update_payroll_cost_center
+    skill: payroll.setup_employee
+    depends_on:
+      - approve_role_and_grade_change
+    mode: auto
+    timeout_s: 20
+
+  - id: update_access_card_zones
+    skill: admin.issue_access_card
+    depends_on:
+      - approve_role_and_grade_change
+    mode: auto
+    timeout_s: 15
+
+  - id: notify_transfer_complete
+    skill: comms.send_welcome
+    depends_on:
+      - update_directory_department
+      - update_payroll_cost_center
+      - update_access_card_zones
+    mode: auto
+    timeout_s: 15
