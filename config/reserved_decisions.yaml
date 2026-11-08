@@ -21,4 +21,6 @@ reserved:
     approver: [finance_head]
   - action: policy.exception
     approver: [hrbp]
+  - action: probation.confirm
+    approver: [hrbp]
 minimum_set_locked: true

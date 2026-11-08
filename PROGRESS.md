@@ -92,8 +92,8 @@ docker compose up --build
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | DONE | - | 44/44 automated tests passing |
 | T049 | Demo-readiness audit and fixes (cold-start, demo journey, compliance) | P8 | DONE | docs/DEMO_RUNBOOK.md, Makefile, apps/web/dashboard.py, PROGRESS.md | 100% verified demo-ready |
 | T050 | One-command local start without Docker (scripts/run_all.py + make dev) | P9 | DONE | scripts/run_all.py, Makefile, README.md | Checks busy ports, starts mocks+backend+dashboard, clean SIGINT |
-| T051 | Live extension rehearsal: Probation confirmation | P9 | IN_PROGRESS | extensions/workflows/probation_confirmation.yaml | Manager review -> reserved HR confirm -> payroll |
-| T052 | Live extension rehearsal: ID-card reprint via chat | P9 | TODO | extensions/workflows/id_card_reprint.yaml, extensions/skills/* | Chat intent -> rule check -> idempotent reprint |
+| T051 | Live extension rehearsal: Probation confirmation | P9 | DONE | extensions/workflows/probation_confirmation.yaml, config/reserved_decisions.yaml | 1.2 min, 0 core changes |
+| T052 | Live extension rehearsal: ID-card reprint via chat | P9 | IN_PROGRESS | extensions/workflows/id_card_reprint.yaml, extensions/skills/* | Chat intent -> rule check -> idempotent reprint |
 | T053 | Live extension rehearsal: Internal transfer | P9 | TODO | extensions/workflows/internal_transfer.yaml | Manager request -> reserved role/grade -> parallel update |
 | T054 | Speed tooling for live day (_template.yaml, new_workflow.py, EXTENSION_PLAYBOOK.md) | P9 | TODO | extensions/workflows/_template.yaml, scripts/new_workflow.py, docs/EXTENSION_PLAYBOOK.md | Scaffold tool & HR cheat sheet |
 | T055 | Number defensibility (eval_router.py, router threshold eval, results.md) | P9 | TODO | scripts/eval_router.py, docs/results.md | 50 labelled queries, threshold eval |
