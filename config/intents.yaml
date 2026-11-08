@@ -1,0 +1,37 @@
+# Declarative Chat Intent Mappings & RBAC Roles
+intents:
+  - id: id_card_reprint
+    keywords: ["reprint", "lost card", "id card", "badge", "access card reprint"]
+    min_role: employee
+    confidence: 0.95
+    workflow_trigger: chat.reprint_id_card
+
+  - id: check_status
+    keywords: ["status", "where is", "progress", "onboarding", "workflow"]
+    min_role: employee
+    confidence: 0.95
+
+  - id: laptop_query
+    keywords: ["laptop", "macbook", "computer", "asset", "hardware"]
+    min_role: employee
+    confidence: 0.95
+
+  - id: leave_query
+    keywords: ["leave", "vacation", "holiday", "sick", "pl ", "cl "]
+    min_role: employee
+    confidence: 0.92
+
+  - id: notice_query
+    keywords: ["notice", "resignation", "exit", "settlement"]
+    min_role: employee
+    confidence: 0.90
+
+  - id: approval_action
+    keywords: ["approve", "reject", "signoff", "pending approval"]
+    min_role: hrbp
+    confidence: 0.95
+
+  - id: policy_qa
+    keywords: ["policy", "probation", "notice period", "gratuity"]
+    min_role: employee
+    confidence: 0.90

@@ -1,0 +1,26 @@
+id: id_card_reprint
+version: 1
+trigger: chat.reprint_id_card
+description: "Self-service ID card reprint workflow initiated via chat with idempotency"
+inputs:
+  - employee_id
+  - reason
+steps:
+  - id: verify_employee_active
+    skill: dsr.verify_identity
+    mode: auto
+    timeout_s: 10
+
+  - id: issue_reprint
+    skill: admin.reprint_id_card
+    depends_on:
+      - verify_employee_active
+    mode: auto
+    timeout_s: 15
+
+  - id: notify_collection
+    skill: comms.send_welcome
+    depends_on:
+      - issue_reprint
+    mode: auto
+    timeout_s: 10

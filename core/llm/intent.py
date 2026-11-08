@@ -8,28 +8,34 @@ from dataclasses import dataclass
 from typing import Optional
 import structlog
 
+from pathlib import Path
+import yaml
 from core.llm.fake_provider import FakeLLMProvider, LLMResponse
 
 log = structlog.get_logger()
 
-# Intent → minimum role that can act on it
+CONFIG_INTENTS = Path(__file__).parent.parent.parent / "config" / "intents.yaml"
+
+# Default Intent → minimum role that can act on it
 INTENT_ROLE_MAP: dict[str, str] = {
     "check_status":    "employee",
     "laptop_query":    "employee",
     "leave_query":     "employee",
     "notice_query":    "employee",
     "policy_qa":       "employee",
+    "id_card_reprint": "employee",
     "approval_action": "hrbp",
     "admin_action":    "hr_head",
     "general_qa":      "employee",
 }
 
-# Fast keyword → intent, no LLM needed
+# Default Fast keyword → intent
 _KEYWORD_RULES: list[tuple[list[str], str, float]] = [
     (["status", "where is", "progress", "onboarding", "workflow"], "check_status", 0.95),
     (["laptop", "macbook", "computer", "asset", "hardware"],       "laptop_query",  0.95),
     (["leave", "vacation", "holiday", "sick", "pl ", "cl "],       "leave_query",   0.92),
     (["notice", "resignation", "exit", "settlement"],               "notice_query",  0.90),
+    (["reprint", "lost card", "id card", "badge", "card reprint"], "id_card_reprint", 0.95),
     (["approve", "reject", "signoff", "pending approval"],          "approval_action", 0.95),
     (["policy", "probation", "notice period", "gratuity"],         "policy_qa",     0.90),
 ]

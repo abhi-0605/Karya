@@ -179,6 +179,12 @@ async def chat_message(body: ChatRequest) -> ChatResponse:
     elif intent == "policy_qa":
         reply, citations = await _handle_policy_qa(body.message)
 
+    elif intent == "id_card_reprint":
+        reply = (
+            f"Your ID card reprint request for **{user_id}** has been processed and sent to Admin Ops. "
+            f"New badge reference: `CARD-REPRINT-{user_id}`. Please pick it up from Ground Floor Security."
+        )
+
     elif intent == "approval_action":
         reply = await _handle_approval_action(user_role)
 

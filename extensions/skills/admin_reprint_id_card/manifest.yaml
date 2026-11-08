@@ -1,0 +1,13 @@
+name: admin.reprint_id_card
+version: 1.0.0
+type: integration
+permissions_required:
+  - admin:access_card
+idempotency:
+  - employee_id
+integration: admin
+model: none
+timeout_s: 15
+retry:
+  max: 3
+  backoff: exponential
