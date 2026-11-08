@@ -1,0 +1,26 @@
+id: workflow_template
+version: 1
+trigger: domain.event_name
+description: "Template for new KaryaOS workflows (copy and customize)"
+inputs:
+  - employee_id
+steps:
+  - id: step_one_auto
+    skill: directory.create_account
+    mode: auto
+    timeout_s: 15
+
+  - id: step_two_approval
+    skill: hr.confirm_compensation
+    action: policy.exception
+    depends_on:
+      - step_one_auto
+    mode: approval
+    approver_role: hrbp
+
+  - id: step_three_notify
+    skill: comms.send_welcome
+    depends_on:
+      - step_two_approval
+    mode: auto
+    timeout_s: 15
