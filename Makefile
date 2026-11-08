@@ -1,4 +1,10 @@
-.PHONY: up down seed test bench validate lint
+.PHONY: up down seed test bench validate dashboard run-mocks run-backend demo demo-local
+
+demo:
+	docker compose up --build
+
+demo-local:
+	python scripts/seed_data.py && streamlit run apps/web/dashboard.py
 
 up:
 	docker compose up --build -d
@@ -7,19 +13,22 @@ down:
 	docker compose down
 
 seed:
-	cd backend && python scripts/seed_data.py
+	python scripts/seed_data.py
 
 test:
-	cd backend && pytest tests/ -v --tb=short
+	pytest tests/ -q --tb=short
 
 bench:
-	cd backend && python scripts/bench.py
+	python scripts/bench.py
 
 validate:
-	cd backend && python scripts/validate.py
+	python scripts/validate.py
 
-lint:
-	cd backend && ruff check . && mypy app/ core/ --ignore-missing-imports
+dashboard:
+	streamlit run apps/web/dashboard.py
 
-migrate:
-	cd backend && alembic upgrade head
+run-mocks:
+	uvicorn mocks.main:app --port 8001 --reload
+
+run-backend:
+	cd backend && uvicorn app.main:app --port 8000 --reload

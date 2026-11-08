@@ -1,42 +1,58 @@
 # KaryaOS Benchmark & Evaluation Report
 
-- **Date:** 2026-11-08 13:30:04Z
-- **Batch Size:** 200 completed onboarding workflows
-- **Target Platform:** TBO Hackathon — AI-Native HR Services Platform
+- **Date Generated:** 2026-11-08 13:46:37Z
+- **Sample Size:** 200 synthetic onboarding workflows
+- **Failure Injection Rate:** 20% (transient 503/timeout retries simulated)
+- **Status:** [Measured via `scripts/bench.py`]
 
 ---
 
-## 1. Executive Summary Strip
+## 1. Verified Key Metrics Strip
 
-| Metric | Measured Value | Target / SLA | Status |
+| Metric | Measured Value | Calculation Mode | Target / SLA | Verification Status |
+|---|---|---|---|---|
+| **Average Cost per Workflow** | **₹2.54** | Measured (Token ₹ + Infra share) | < ₹5.00 |  PASSED (-95% vs Manual ₹50.00) |
+| **Model Token Cost per Workflow** | **₹0.0372** | Measured (Models config) | < ₹0.10 |  PASSED |
+| **Infra Share per Workflow** | **₹2.50** | Configured (`infra_costs.yaml`) | < ₹5.00 |  PASSED |
+| **Automation Rate (Overall)** | **86.9%** | Measured (Auto / Total steps) | > 85.0% |  PASSED |
+| **Automation Rate (ex-Reserved)** | **99.4%** | Measured (Excluding mandatory human signoffs) | > 95.0% |  PASSED |
+| **Cycle Time p50** | **4.02 seconds** | Measured (End-to-end execution) | < 10.0 s |  PASSED |
+| **Cycle Time p90** | **5.78 seconds** | Measured (With retries & jitter) | < 30.0 s |  PASSED |
+| **Cycle Time p99** | **11.36 seconds** | Measured (With triage delays) | < 60.0 s |  PASSED |
+| **Escalation Rate to Human Queue** | **4.5%** | Measured (Quarantined runs) | < 5.0% |  PASSED |
+
+---
+
+## 2. Model Tier Routing Mix
+
+| Model Tier | Model Identifier | Selection Share | Pricing Basis |
 |---|---|---|---|
-| **Average Cost per Workflow** | **₹0.15** | < ₹5.00 |  PASSED (-95% vs Manual ₹50.00) |
-| **Automation Rate (Overall)** | **87.1%** | > 85% |  PASSED |
-| **Automation Rate (ex-Reserved)** | **99.6%** | > 95% |  PASSED (Governance Intact) |
-| **Cycle Time p50** | **3.86 seconds** | < 10.0 s |  PASSED |
-| **Cycle Time p90** | **4.74 seconds** | < 30.0 s |  PASSED |
-| **Cycle Time p99** | **9.01 seconds** | < 60.0 s |  PASSED |
-| **Escalation Rate to Human Queue** | **3.0%** | < 5.0% |  PASSED |
+| **Small Model (Tier 1)** | `gemini-1.5-flash` / Local | **82.0%** | ₹0.00625 / 1k tokens |
+| **Escalation Model (Tier 2)**| `gemini-1.5-pro` / Mid | **18.0%** | ₹0.40 in / ₹1.60 out per 1k |
+| **Deterministic Rules** | Plain Python Code | **100% of policy & date math** | ₹0.00 (Zero tokens) |
+
+> **Routing Rule:** Models run strictly through `core/llm/router.py`. If small model output confidence drops below **0.75** or prompt exceeds 3,000 tokens, it escalates to Tier 2. Zero PII leaves the platform boundary regardless of tier.
 
 ---
 
-## 2. Cost Analysis & Breakdown (INR ₹)
+## 3. Cost Projection Template (Monthly at Scale)
 
-| Component | Cost per 1,000 Hires | Cost per Hire |
+Based on the formula in `docs/COST_MODEL_AND_METRICS.md §6`:
+`monthly_cost = H × cost_per_onboarding + E × M × cost_per_chat_msg + fixed_infra_per_month`
+
+| Volume Parameter | Assumption | Monthly Cost (INR ₹) |
 |---|---|---|
-| **Model Ingestion (Tokens in)** | ₹1.18 | ₹0.0012 |
-| **Model Output (Tokens out)** | ₹2.06 | ₹0.0021 |
-| **Infrastructure Share (PostgreSQL, Redis, Gateway)** | ₹150.00 | ₹0.1500 |
-| **Human Review Cost (Reserved Approval: ~30s)** | ₹2,300.00 | ₹2.3000 |
-| **Total Fully Burdened Cost** | **₹2,453.24** | **₹2.45** |
-
-> **Comparative Manual Benchmark:** A standard enterprise IT + HR manual onboarding process takes ~48 hours of turnaround time and ₹50 to ₹75 of administrative labour per hire. KaryaOS achieves a **95.1% cost reduction** with zero duplicate laptop provisions.
+| Monthly Hires ($H$) | 300 new hires | ₹761.15 |
+| Employee Count ($E$) | 5,000 employees | - |
+| Chat Inquiries per Employee ($M$) | 2 inquiries / month (10,000 chats) | ₹1,000.00 (at ₹0.10 / chat) |
+| Fixed Infra Base (Container + DB) | Small production cluster | ₹25,000.00 [Estimated Baseline] |
+| **Total Projected Monthly Cost** | **5,000 Headcount Organization** | **₹26761.15 / month** |
 
 ---
 
-## 3. Governance & Quality Guardrails
+## 4. Governance & Safety Summary
 
-1. **Idempotency Gate:** Forced-retry test passes with 0 duplicate assets allocated.
-2. **Reserved Decisions:** 100% of compensation confirmations routed to designated HRBP with agent tokens rejected (403 Forbidden).
-3. **Audit Log:** Cryptographic hash chaining intact across all 1600 lifecycle events.
-4. **PII Masking:** 100% of Aadhaar, PAN, and Bank details redacted prior to model context boundary.
+1. **Duplicate Asset Allocations:** **0** duplicates across forced-retry tests (Idempotent Gateway).
+2. **Autonomous Reserved Approvals:** **0** approvals by agents (HTTP 403 Forbidden enforced).
+3. **Audit Log Tamper-Resistance:** 100% verified via cryptographic SHA-256 hash chaining.
+4. **PII Masking:** 100% of Aadhaar, PAN, and Bank details scrubbed before model ingestion.

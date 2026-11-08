@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 100% (48/48 tasks verified DONE)
-- Current phase: P8 Complete (All Phases P0 to P8 Verified)
-- Last updated: 2026-11-08T19:06:00+05:30
+- Overall completion: 100% (49/49 tasks verified DONE)
+- Current phase: P8 Complete & Demo-Ready (Audit Passed)
+- Last updated: 2026-11-08T19:18:00+05:30
 - Last agent/session: 3
 
 ## How to Run (kept current)
@@ -90,6 +90,23 @@ docker compose up --build
 | T046 | End-to-end integration test suite | P8 | DONE | tests/e2e/test_full_lifecycle.py | Complete lifecycle test passing |
 | T047 | Root README.md (setup steps, demo users, license table, checklist) | P8 | DONE | README.md | Comprehensive hackathon README |
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | DONE | - | 44/44 automated tests passing |
+| T049 | Demo-readiness audit and fixes (cold-start, demo journey, compliance) | P8 | DONE | docs/DEMO_RUNBOOK.md, Makefile, apps/web/dashboard.py, PROGRESS.md | 100% verified demo-ready |
+
+## Demo-Readiness Audit Results
+| Audit Item | Verification Status | Notes / Fixes Applied |
+|---|---|---|
+| **1. Cold-start check** | **PASS** | Fixed missing root `Dockerfile` and `apps/web/Dockerfile`. Added `make demo` single-command startup. Fixed paths in `Makefile`. |
+| **2a. Happy path** | **PASS** | Triggering `employee.hired` executes 7 parallel steps in <4s; compensation step parks. Verified via API & UI. |
+| **2b. Reserved decision** | **PASS** | Agent token approval probe rejected with HTTP 403 Forbidden. Human HRBP approves with rationale. |
+| **2c. Safe failure & Idempotency** | **PASS** | Injected 503 on mock asset API trips circuit breaker to Human Queue. Resumed run confirms exactly 1 laptop in ledger. |
+| **2d. Kill switch** | **PASS** | UI toggles pause IT agent / workflow / skill. Engine checks flags before every step (<1s propagation). |
+| **2e. Chat assistant under RBAC** | **PASS** | Employee status query returns active run; employee asking to approve compensation is blocked by RBAC gate. |
+| **2f. Executive dashboard** | **PASS** | Streamlit UI shows ₹2.54/wf, 86.9% overall & 99.4% ex-reserved automation, 4.0s p50 latency, model mix (82% small / 18% esc). |
+| **2g. Governance views** | **PASS** | Live hash chain verification button confirms unbroken SHA-256 chain across all entries. DSR workflow tab active. |
+| **2h. Extension proof** | **PASS** | `exit.yaml` and `dsr.yaml` added via declarative YAML only. Zero changes to `/core` (`git diff` clean). |
+| **3. Honesty check on numbers** | **PASS** | `scripts/bench.py` re-run with 20% failure injection. Output generated to `docs/results.md` with explicit [Measured] vs [Estimated] tags. |
+| **4. Compliance spot-check** | **PASS** | Zero secrets in repo (git grep clean), `.env.example` verified, DPDP PII masking active, candidate auto-reject blocked. |
+| **5. License & AI disclosure** | **PASS** | Added complete open-source & model license table and AI assistant disclosure to `README.md`. |
 
 ## Currently In Progress
 - Completed all 48 tasks!

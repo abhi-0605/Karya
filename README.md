@@ -3,7 +3,7 @@
 > **TBO Hackathon Prototype**  
 > *"Agents do the work. Humans own the decisions."*
 
-[![Build & Test](https://img.shields.io/badge/tests-41%20passed-brightgreen.svg)](#test-suite)
+[![Build & Test](https://img.shields.io/badge/tests-44%20passed-brightgreen.svg)](#test-suite)
 [![Architecture](https://img.shields.io/badge/architecture-rules--first%20%7C%20zero--core--change-blue.svg)](#architecture)
 [![Governance](https://img.shields.io/badge/governance-hash--chained%20audit-blueviolet.svg)](#governance)
 [![Compliance](https://img.shields.io/badge/compliance-DPDP%202023%20PII%20Gateway-orange.svg)](#data-privacy--pii-protection)
@@ -66,14 +66,20 @@ KaryaOS/
 
 ## 3. How to Run
 
-### Option A: Complete Docker Compose (Recommended)
-Spins up PostgreSQL, Redis, Mock Fulfillment APIs, Backend API, and Streamlit Dashboard in one command:
+### Single-Command Demo Startup (Brings Up Everything)
 ```bash
+make demo
+# or directly:
 docker compose up --build
 ```
 - **Backend Swagger UI:** `http://localhost:8000/docs`
-- **Operations Dashboard:** `http://localhost:8501`
+- **Operations & Governance Dashboard:** `http://localhost:3000` (or `http://localhost:8501` locally)
 - **Mock Fulfillment Services:** `http://localhost:8001/docs`
+
+For local execution without Docker:
+```bash
+make demo-local
+```
 
 ---
 
@@ -173,5 +179,29 @@ KaryaOS includes pre-configured JWT authentication for 8 synthetic demo personas
 
 ---
 
-## 7. License
+## 7. Open Source & Model Licenses
+
+| Library / Component | Version | License | Primary Purpose |
+|---|---|---|---|
+| **FastAPI** | `>=0.111.0` | MIT | Asynchronous REST API routing & OpenAPI generation |
+| **SQLAlchemy** | `>=2.0.0` | MIT | Async ORM database abstraction & schema definition |
+| **asyncpg / aiosqlite** | `>=0.29.0` | Apache 2.0 / MIT | Non-blocking database drivers (PostgreSQL & SQLite) |
+| **Pydantic** | `>=2.7.0` | MIT | Data validation and type coercion |
+| **Streamlit** | `>=1.35.0` | Apache 2.0 | Real-time Operations & Governance Dashboard |
+| **httpx** | `>=0.27.0` | BSD-3-Clause | Async HTTP client for mock integration gateway |
+| **structlog** | `>=24.0.0` | MIT / Apache 2.0 | Structured JSON logging with security context |
+| **PyYAML** | `>=6.0` | MIT | Declarative YAML workflow and policy parser |
+| **Tenacity** | `>=8.3.0` | Apache 2.0 | Exponential backoff retry logic in gateway |
+| **python-jose / passlib** | `>=3.3.0` | MIT / BSD | Cryptographic JWT token encoding & verification |
+| **Google Gemini Flash** | `gemini-1.5-flash` | Commercial API | Tier 1 Small Model (Welcome drafting, Intent triage) |
+| **Google Gemini Pro** | `gemini-1.5-pro` | Commercial API | Tier 2 Escalation Model (Mid-tier fallback) |
+
+---
+
+## 8. AI-Assistant Disclosure
+In compliance with hackathon regulations: Portions of this codebase, test suites, and documentation were accelerated using AI coding assistants (Google Antigravity / Claude 3.5 / Gemini). All architectural governance decisions, cryptographic hash-chaining verification, DPDP PII gateway logic, load-time reserved decision validators, and circuit breaker implementations were engineered, reviewed, and verified by the development team.
+
+---
+
+## 9. License
 Proprietary prototype built for the TBO Hackathon: AI-Native HR Services Platform. Synthetic dataset only; no proprietary or real personal data included.
