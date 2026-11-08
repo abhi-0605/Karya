@@ -1,0 +1,38 @@
+id: final_settlement
+version: 1
+effective_from: 2025-04-01
+description: "Statutory Full & Final (F&F) settlement policy rules (gratuity, leave encashment, recovery)"
+rules:
+  - name: gratuity_eligible
+    when:
+      tenure_years: [5, 6, 7, 8, 9, 10, 15, 20]
+    then:
+      gratuity_eligible: true
+      statutory_timeline_days: 30
+
+  - name: gratuity_ineligible
+    when:
+      tenure_years: [0, 1, 2, 3, 4]
+    then:
+      gratuity_eligible: false
+      statutory_timeline_days: 30
+
+  - name: executive_settlement
+    when:
+      grade: [L5, L6]
+    then:
+      finance_head_signoff_required: true
+      max_encashable_days: 45
+
+tests:
+  - given:
+      tenure_years: 6
+    expect:
+      gratuity_eligible: true
+      statutory_timeline_days: 30
+
+  - given:
+      tenure_years: 3
+    expect:
+      gratuity_eligible: false
+      statutory_timeline_days: 30

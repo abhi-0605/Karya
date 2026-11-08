@@ -1,0 +1,50 @@
+id: exit
+version: 1
+trigger: employee.resigned
+description: "AI-Native employee offboarding and statutory final settlement workflow"
+inputs:
+  - employee_id
+  - resignation_date
+  - reason
+steps:
+  - id: accept_resignation
+    skill: hr.confirm_compensation
+    action: resignation.accept
+    mode: approval
+    approver_role: hr_head
+
+  - id: calculate_notice
+    skill: manager.assign_buddy
+    depends_on:
+      - accept_resignation
+    mode: auto
+    timeout_s: 15
+
+  - id: initiate_asset_return
+    skill: assets.allocate_laptop
+    depends_on:
+      - accept_resignation
+    mode: auto
+    timeout_s: 20
+
+  - id: revoke_access_card
+    skill: admin.issue_access_card
+    depends_on:
+      - accept_resignation
+    mode: auto
+    timeout_s: 15
+
+  - id: compute_final_settlement
+    skill: payroll.setup_employee
+    depends_on:
+      - initiate_asset_return
+      - revoke_access_card
+    mode: auto
+    timeout_s: 20
+
+  - id: deactivate_directory
+    skill: directory.create_account
+    depends_on:
+      - compute_final_settlement
+    mode: auto
+    timeout_s: 15

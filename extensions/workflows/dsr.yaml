@@ -1,0 +1,35 @@
+id: dsr
+version: 1
+trigger: dsr.requested
+description: "Data Subject Request (DPDP Act) workflow with DPO reserved decision gate"
+inputs:
+  - subject_id
+  - request_type
+  - requester_email
+steps:
+  - id: verify_identity
+    skill: dsr.verify_identity
+    mode: auto
+    timeout_s: 15
+
+  - id: extract_pii
+    skill: dsr.extract_pii
+    depends_on:
+      - verify_identity
+    mode: auto
+    timeout_s: 20
+
+  - id: dpo_review
+    skill: hr.confirm_compensation
+    action: policy.exception
+    depends_on:
+      - extract_pii
+    mode: approval
+    approver_role: hrbp
+
+  - id: notify_subject
+    skill: dsr.notify_subject
+    depends_on:
+      - dpo_review
+    mode: auto
+    timeout_s: 15

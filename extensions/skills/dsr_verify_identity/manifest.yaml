@@ -1,0 +1,13 @@
+name: dsr.verify_identity
+version: 1.0.0
+type: code
+permissions_required:
+  - dsr:read
+idempotency:
+  - subject_id
+integration: internal
+model: none
+timeout_s: 10
+retry:
+  max: 2
+  backoff: exponential

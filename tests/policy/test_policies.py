@@ -17,6 +17,7 @@ def test_all_policies_loaded(policy_engine: PolicyEngine):
     assert "notice_period" in policy_engine.policies
     assert "probation" in policy_engine.policies
     assert "leave_policy" in policy_engine.policies
+    assert "final_settlement" in policy_engine.policies
 
 
 def test_notice_period_evaluation(policy_engine: PolicyEngine):
@@ -50,7 +51,7 @@ def test_leave_policy_evaluation(policy_engine: PolicyEngine):
 
 def test_policy_yaml_embedded_fixtures(policy_engine: PolicyEngine):
     """Run all test cases declared inside the policy YAML files themselves."""
-    for policy_id in ["notice_period", "probation", "leave_policy"]:
+    for policy_id in ["notice_period", "probation", "leave_policy", "final_settlement"]:
         results = policy_engine.run_policy_tests(policy_id)
         assert len(results) > 0, f"Policy {policy_id} has no embedded tests"
         for r in results:

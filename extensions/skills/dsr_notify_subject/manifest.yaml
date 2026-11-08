@@ -1,0 +1,13 @@
+name: dsr.notify_subject
+version: 1.0.0
+type: comms
+permissions_required:
+  - comms:send
+idempotency:
+  - subject_id
+integration: internal
+model: none
+timeout_s: 10
+retry:
+  max: 2
+  backoff: exponential
