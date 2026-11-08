@@ -1,5 +1,5 @@
 """Demo auth — JWT with hard-coded demo users. NOT for production."""
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -35,7 +35,7 @@ class Token(BaseModel):
 
 def create_token(data: dict) -> str:
     to_encode = data.copy()
-    to_encode["exp"] = datetime.utcnow() + timedelta(minutes=settings.jwt_expire_minutes)
+    to_encode["exp"] = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
     return jwt.encode(to_encode, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 

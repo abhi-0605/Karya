@@ -64,17 +64,25 @@ KaryaOS/
 
 ---
 
-## 3. How to Run
+## 3. Quick Start & How to Run
 
-### Single-Command Demo Startup (Brings Up Everything)
+### Option 1: One-Command Local Start (No Docker Required)
+Launches the Mock APIs (:8001), Backend API (:8000), and Governance Dashboard (:8501) with pre-flight port checks and coordinated shutdown:
+```bash
+python scripts/run_all.py
+# or via make:
+make dev
+```
+- **Operations Dashboard:** `http://localhost:8501`
+- **Backend API Docs:** `http://localhost:8000/docs`
+- **Mock Fulfillment APIs:** `http://localhost:8001/docs`
+
+### Option 2: Complete Docker Compose
 ```bash
 make demo
 # or directly:
 docker compose up --build
 ```
-- **Backend Swagger UI:** `http://localhost:8000/docs`
-- **Operations & Governance Dashboard:** `http://localhost:3000` (or `http://localhost:8501` locally)
-- **Mock Fulfillment Services:** `http://localhost:8001/docs`
 
 For local execution without Docker:
 ```bash

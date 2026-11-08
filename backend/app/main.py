@@ -1,4 +1,5 @@
 """KaryaOS FastAPI application entrypoint."""
+from contextlib import asynccontextmanager
 import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,10 +10,19 @@ from app.api import events, workflows, approvals, human_queue, admin, chat, auth
 log = structlog.get_logger()
 settings = get_settings()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    log.info("KaryaOS backend starting", env=settings.app_env)
+    yield
+    log.info("KaryaOS backend shutting down")
+
+
 app = FastAPI(
     title="KaryaOS API",
     description="AI-Native HR Services Platform",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -36,8 +46,3 @@ app.include_router(chat.router, prefix="/api/chat", tags=["chat"])
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok", "service": "karyaos-backend"}
-
-
-@app.on_event("startup")
-async def startup() -> None:
-    log.info("KaryaOS backend starting", env=settings.app_env)

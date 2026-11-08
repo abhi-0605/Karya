@@ -17,7 +17,7 @@ import asyncio
 import json
 import os
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -177,7 +177,7 @@ async def allocate_laptop(
         "model": model,
         "pool": asset_pool,
         "employee_id": req.employee_id,
-        "allocated_at": datetime.utcnow().isoformat(),
+        "allocated_at": datetime.now(timezone.utc).isoformat(),
         "idempotency_key": idempotency_key,
     }
 

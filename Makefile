@@ -1,4 +1,7 @@
-.PHONY: up down seed test bench validate dashboard run-mocks run-backend demo demo-local
+.PHONY: dev demo demo-local up down seed test bench validate dashboard run-mocks run-backend
+
+dev:
+	python scripts/run_all.py
 
 demo:
 	docker compose up --build
