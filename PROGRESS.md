@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 25% (12/48 tasks verified DONE)
-- Current phase: P2 (Idempotent Integration Gateway, Retries & Circuit Breakers)
-- Last updated: 2026-11-08T11:29:00+05:30
+- Overall completion: 33% (16/48 tasks verified DONE)
+- Current phase: P3 (Policy Engine, Reserved Decisions, Approvals & RBAC)
+- Last updated: 2026-11-08T11:32:00+05:30
 - Last agent/session: 2
 
 ## How to Run (kept current)
@@ -24,7 +24,7 @@ $env:DATABASE_URL = "sqlite+aiosqlite:///./karyaos.db"   # or postgresql+asyncpg
 # 4. Start backend (port 8000):
 cd backend && & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m uvicorn app.main:app --port 8000 --reload
 
-# 5. Run tests:
+# 5. Run all tests:
 & "C:\Users\ADMIN\AppData\Local\Python\bin\python.exe" -m pytest tests/ -v
 
 # 6. Docker full stack (PostgreSQL + Redis + Mocks + Backend + Frontend):
@@ -46,11 +46,11 @@ docker compose up --build
 | T010 | Audit log (hash-chained, SHA-256 prev_hash, append-only) | P1 | DONE | core/audit/logger.py | Verified integrity & tamper-detection |
 | T011 | Onboarding workflow YAML + 8 stub skills in extensions/ | P1 | DONE | extensions/workflows/onboarding.yaml, extensions/skills/* | All 8 manifests and runners created |
 | T012 | End-to-end smoke test: trigger employee.hired event -> workflow executes | P1 | DONE | backend/app/api/events.py, tests/test_workflow_e2e.py | Verified with httpx client |
-| T013 | Idempotent integration gateway | P2 | IN_PROGRESS | core/gateway/gateway.py | Key = run_id + step_id + hash |
-| T014 | Retry with exponential backoff per integration | P2 | TODO | core/gateway/retry.py | Tenacity integration |
-| T015 | Circuit breaker per integration | P2 | TODO | core/gateway/circuit_breaker.py | Circuit breaker pattern |
-| T016 | Idempotency test (forced-retry / crash-mid-call -> exactly 1 laptop) | P2 | TODO | tests/test_idempotency.py | P2 milestone |
-| T017 | Policy engine: YAML rule evaluator (json-logic / rules) | P3 | TODO | core/policy/engine.py | Notice, leave, compensation |
+| T013 | Idempotent integration gateway | P2 | DONE | core/gateway/gateway.py | Key = run_id + step_id + hash, zero duplicates |
+| T014 | Retry with exponential backoff per integration | P2 | DONE | core/gateway/retry.py | Exponential backoff + jitter |
+| T015 | Circuit breaker per integration | P2 | DONE | core/gateway/circuit_breaker.py | CLOSED -> OPEN (3 fails) -> HALF_OPEN |
+| T016 | Idempotency test (forced-retry / crash-mid-call -> exactly 1 laptop) | P2 | DONE | tests/test_idempotency.py | Verified 1 laptop in ledger & CB trip |
+| T017 | Policy engine: YAML rule evaluator (rules-first, date maths, policy checks) | P3 | IN_PROGRESS | core/policy/engine.py, extensions/policies/* | Notice period & probation rules |
 | T018 | Reserved-decision config loader + load-time auto-mode validator | P3 | TODO | config/reserved_decisions.yaml, core/engine/ | Reserved steps cannot run auto |
 | T019 | Approval service + API (agent tokens REJECTED) | P3 | TODO | core/engine/approvals.py, backend/app/api/approvals.py | Hard reject on principal_type!=human |
 | T020 | RBAC engine (agent permissions ⊆ acting user permissions) | P3 | TODO | core/rbac/ | Permissions intersection |
@@ -84,15 +84,15 @@ docker compose up --build
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | TODO | - | Final milestone |
 
 ## Currently In Progress
-- **T013**: Idempotent integration gateway (`core/gateway/gateway.py`).
-  - Storing idempotency ledger in memory / DB cache so repeated calls with the same key never trigger external side-effects twice.
+- **T017**: Policy engine (`core/policy/engine.py`) and policy YAMLs (`extensions/policies/notice_period.yaml`, `probation.yaml`).
+  - Evaluates rules deterministically in code (zero LLM tokens, versioned, testable).
 
 ## Next 5 Steps (ordered, concrete)
-1. T013: Implement `core/gateway/gateway.py` with in-flight state tracking and persistent idempotency storage.
-2. T014: Implement `core/gateway/retry.py` with exponential backoff and jitter.
-3. T015: Implement `core/gateway/circuit_breaker.py` (closed -> open on 3 failures, auto half-open after reset window).
-4. T016: Implement `tests/test_idempotency.py` (forced crash / retry assertion: exactly 1 laptop in mock ledger).
-5. T017 & T018: Implement policy evaluator (`core/policy/engine.py`) and reserved decision load-time validator.
+1. T017 & T021: Build `core/policy/engine.py`, policy YAML definitions in `extensions/policies/`, and unit tests in `tests/policy/`.
+2. T018: Build load-time reserved decision validator (`core/engine/validator.py`).
+3. T019 & T022: Wire approval API endpoints and write `tests/test_reserved.py` asserting that agents cannot approve.
+4. T020: Implement RBAC engine with permissions intersection rule (`core/rbac/engine.py`).
+5. Move to Phase P4: Human Queue & Kill Switch UI API.
 
 ## Decisions Log
 | Decision | Reason | Date |
@@ -103,9 +103,10 @@ docker compose up --build
 | JWT demo users with strict RBAC | Fastest to demo without complex external IdP setup | 2026-11-08 |
 | Deterministic fake LLM provider | Ensures end-to-end execution even with zero API keys or network cutoffs | 2026-11-08 |
 | Synchronize DB operations in workflow state machine via asyncio.Lock | AsyncSession cannot be accessed concurrently across tasks | 2026-11-08 |
+| Circuit breaker: threshold 3, reset 30s | Fails fast when external fulfillment APIs are 503/timeout | 2026-11-08 |
 
 ## Known Issues / Bugs / Tech Debt
-- None (all 8 tests passing clean).
+- None (all 10 tests passing clean).
 
 ## Assumptions
 1. Mock APIs: Built in `mocks/main.py` with switchable failure modes (503/timeout) via `MOCK_{SERVICE}_FAIL_MODE`.
@@ -114,9 +115,10 @@ docker compose up --build
 4. Single-tenant TBO organization.
 
 ## Test Status
-- `tests/test_engine.py`: 7/7 PASSED (workflow load, skill discovery, audit chain integrity, tamper detection, onboarding run, reserved blocked in auto, kill switch pause).
-- `tests/test_workflow_e2e.py`: 1/1 PASSED (employee.hired event -> parallel execution -> approval parking -> dedup on replay -> audit verified).
-- Total: 8/8 tests passing (100%).
+- `tests/test_engine.py`: 7/7 PASSED.
+- `tests/test_idempotency.py`: 2/2 PASSED.
+- `tests/test_workflow_e2e.py`: 1/1 PASSED.
+- Total: 10/10 tests passing (100%).
 
 ## Handoff Notes
 - Work strictly ONE task at a time. No parallel subagents.
