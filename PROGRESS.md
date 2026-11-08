@@ -1,9 +1,9 @@
 # KaryaOS Progress
 
 ## Status Summary
-- Overall completion: 60% (29/48 tasks verified DONE)
-- Current phase: P5 done → P6 (Conversational Assistant)
-- Last updated: 2026-11-08T18:50:00+05:30
+- Overall completion: 67% (32/48 tasks verified DONE)
+- Current phase: P6 complete → P7 (Dashboard & Benchmarks)
+- Last updated: 2026-11-08T18:55:00+05:30
 - Last agent/session: 3
 
 ## How to Run (kept current)
@@ -64,11 +64,11 @@ docker compose up --build
 | T028 | Cost meter (tokens, model, INR per step, infra share) | P5 | DONE | core/llm/meter.py, config/infra_costs.yaml | Per-step and per-workflow ₹ |
 | T029 | PII leak test (assert no Aadhaar/PAN in outbound model payloads) | P5 | DONE | tests/test_pii.py | 4/4 passing |
 | T030 | Deterministic fake LLM provider (offline end-to-end execution) | P5 | DONE | core/llm/fake_provider.py | Guaranteed run with 0 API keys |
-| T031 | Web chat widget & API | P6 | IN_PROGRESS | backend/app/api/chat.py, apps/web/ | Web chat |
-| T032 | Chat intent classification under RBAC | P6 | TODO | core/llm/intent.py | Status, laptop, leave, approvals |
-| T033 | Policy RAG with citations | P6 | TODO | core/llm/rag.py | Grounded in policy docs |
-| T034 | Slack bot adapter (optional / stub) | P6 | TODO | apps/slack/ | Slack Bolt SDK |
-| T035 | Dashboard: KPI strip (INR/workflow, automation %, cycle time, escalation %) | P7 | TODO | apps/web/ | Live SQL view metrics |
+| T031 | Web chat widget & API | P6 | DONE | backend/app/api/chat.py | Intents, handlers, in-memory audit |
+| T032 | Chat intent classification under RBAC | P6 | DONE | core/llm/intent.py | Fast rules path + LLM fallback + RBAC min-role gate |
+| T033 | Policy RAG with citations | P6 | DONE | core/llm/rag.py | Grounded in YAML policy files with citations |
+| T034 | Slack bot adapter (optional / stub) | P6 | DONE | apps/slack/stub.py | Bolt stub handler |
+| T035 | Dashboard: KPI strip (INR/workflow, automation %, cycle time, escalation %) | P7 | IN_PROGRESS | apps/web/dashboard.py | Streamlit UI |
 | T036 | Dashboard: trend, funnel, model mix, queue health panels | P7 | TODO | apps/web/ | Single-page operations view |
 | T037 | DSR workflow (DPDP access / correction request) | P7 | TODO | extensions/workflows/dsr.yaml | DPDP compliance |
 | T038 | make bench script (seed 200 hires, batch run, CSV + results.md) | P7 | TODO | scripts/bench.py, docs/results.md | P7 milestone |
@@ -84,14 +84,14 @@ docker compose up --build
 | T048 | Final verification: docker compose up clean run, git tag v1.0 | P8 | TODO | - | Final milestone |
 
 ## Currently In Progress
-- **T031**: Chat API (`backend/app/api/chat.py`) — accept `{message, user_id}`, call ModelRouter for intent, dispatch to status/policy/approval handler.
+- **T035**: Streamlit operations dashboard (`apps/web/dashboard.py`) — KPI strip (₹/workflow, automation rate, p50/p90 cycle time, escalation rate).
 
 ## Next 5 Steps (ordered, concrete)
-1. T031: Implement `backend/app/api/chat.py` — intent routing + 3 handlers (workflow status, policy Q&A, approval list).
-2. T032: `core/llm/intent.py` — intent classifier using FakeLLMProvider; maps to action with RBAC gate.
-3. T033: `core/llm/rag.py` — policy RAG: load policy YAMLs, keyword search, return answer with file:line citation.
-4. T035+T036: Streamlit dashboard (`apps/web/dashboard.py`) — KPI strip + trend chart querying ModelCallMeter DB.
-5. T039: `extensions/workflows/exit.yaml` — EXIT workflow YAML only (zero core changes), proving extensibility.
+1. T035+T036: Build `apps/web/dashboard.py` (Streamlit dashboard with live KPI strip, workflow viewer, human queue table, killswitch toggles).
+2. T037: `extensions/workflows/dsr.yaml` — DPDP Data Subject Request workflow (access, correction, erasure).
+3. T038: `scripts/bench.py` — Seed 200 hires, run batch onboarding, output `docs/results.md` + metrics.csv.
+4. T039: `extensions/workflows/exit.yaml` — Exit & final settlement workflow (YAML-only, zero /core changes).
+5. T040: `extensions/policies/final_settlement.yaml` — Gratuity, PF, leave encashment policy rules.
 
 ## Decisions Log
 | Decision | Reason | Date |
@@ -117,14 +117,15 @@ docker compose up --build
 4. Single-tenant TBO organization.
 
 ## Test Status
-- **25/25 tests passing** (last run: 2026-11-08T18:48):
+- **33/33 tests passing** (last run: 2026-11-08T18:55):
   - `tests/policy/test_policies.py`: 5 passed
   - `tests/test_engine.py`: 7 passed
   - `tests/test_idempotency.py`: 2 passed
   - `tests/test_reserved.py`: 5 passed
   - `tests/test_killswitch.py`: 1 passed
   - `tests/test_workflow_e2e.py`: 1 passed
-  - `tests/test_pii.py`: 4 passed (bank regex ordering fixed)
+  - `tests/test_pii.py`: 4 passed
+  - `tests/test_chat.py`: 8 passed (intent, policy RAG, RBAC gate, human queue escalation)
 
 ## Handoff Notes
 - Work strictly ONE task at a time. No parallel subagents.
