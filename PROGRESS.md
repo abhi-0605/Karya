@@ -97,8 +97,8 @@ docker compose up --build
 | T053 | Live extension rehearsal: Internal transfer | P9 | DONE | extensions/workflows/internal_transfer.yaml | 1.2 min, 0 core changes |
 | T054 | Speed tooling for live day (_template.yaml, new_workflow.py, EXTENSION_PLAYBOOK.md) | P9 | DONE | extensions/workflows/_template.yaml, scripts/new_workflow.py, docs/EXTENSION_PLAYBOOK.md | Scaffold tool & HR cheat sheet |
 | T055 | Number defensibility (eval_router.py, router threshold eval, results.md) | P9 | DONE | scripts/eval_router.py, scripts/bench.py, docs/results.md, data/bench_metrics.csv | 50 labelled queries, threshold eval, exact formulas |
-| T056 | Round 1 submission package (/submission/ARCHITECTURE_DOC, VIDEO_SCRIPT, QA_PREP) | P9 | IN_PROGRESS | submission/ARCHITECTURE_DOC.md, submission/VIDEO_SCRIPT.md, submission/QA_PREP.md | 6-page arch doc, 5-min script, 15 hard QA |
-| T057 | Final release check & verification | P9 | TODO | - | Full test suite, git commit, release tag |
+| T056 | Round 1 submission package (/submission/ARCHITECTURE_DOC, VIDEO_SCRIPT, QA_PREP) | P9 | DONE | submission/ARCHITECTURE_DOC.md, submission/VIDEO_SCRIPT.md, submission/QA_PREP.md | 6-page arch doc, 5-min script, 15 hard QA |
+| T057 | Final release check & verification | P9 | IN_PROGRESS | README.md, PROGRESS.md | Full test suite, git commit, release tag |
 
 ## Currently In Progress
 - **T050**: One-command local runner (`scripts/run_all.py` + `make dev`).
