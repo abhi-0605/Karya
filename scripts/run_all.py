@@ -14,26 +14,60 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+
+def get_python_executable() -> str:
+    """Find a Python executable that has the required dependencies (uvicorn, fastapi)."""
+    # First check current sys.executable
+    try:
+        res = subprocess.run([sys.executable, "-c", "import uvicorn, streamlit, fastapi"], capture_output=True)
+        if res.returncode == 0:
+            return sys.executable
+    except Exception:
+        pass
+
+    # Check known host python locations on Windows
+    candidates = [
+        r"C:\Users\ADMIN\AppData\Local\Python\bin\python.exe",
+        r"C:\Python314\python.exe",
+        r"C:\Python312\python.exe",
+        r"C:\Python311\python.exe",
+        r"C:\Python310\python.exe",
+    ]
+    for cand in candidates:
+        if os.path.exists(cand):
+            try:
+                res = subprocess.run([cand, "-c", "import uvicorn, streamlit, fastapi"], capture_output=True)
+                if res.returncode == 0:
+                    print(f"ℹ️ Active Python environment ({sys.executable}) is missing dependencies.")
+                    print(f"   Auto-switching to host Python: {cand}")
+                    return cand
+            except Exception:
+                pass
+    return sys.executable
+
+
+PY_BIN = get_python_executable()
+
 SERVICES = [
     {
         "name": "Mock Fulfillment APIs",
         "port": 8001,
         "env_var": "MOCK_API_PORT",
-        "cmd": [sys.executable, "-m", "uvicorn", "mocks.main:app", "--port", "8001", "--host", "0.0.0.0"],
+        "cmd": [PY_BIN, "-m", "uvicorn", "mocks.main:app", "--port", "8001", "--host", "0.0.0.0"],
         "cwd": PROJECT_ROOT,
     },
     {
         "name": "KaryaOS Backend API",
         "port": 8000,
         "env_var": "BACKEND_PORT",
-        "cmd": [sys.executable, "-m", "uvicorn", "app.main:app", "--port", "8000", "--host", "0.0.0.0"],
+        "cmd": [PY_BIN, "-m", "uvicorn", "app.main:app", "--port", "8000", "--host", "0.0.0.0"],
         "cwd": PROJECT_ROOT / "backend",
     },
     {
         "name": "Streamlit Governance Dashboard",
         "port": 8501,
         "env_var": "STREAMLIT_PORT",
-        "cmd": [sys.executable, "-m", "streamlit", "run", "apps/web/dashboard.py", "--server.port", "8501", "--server.headless", "true"],
+        "cmd": [PY_BIN, "-m", "streamlit", "run", "apps/web/dashboard.py", "--server.port", "8501", "--server.headless", "true"],
         "cwd": PROJECT_ROOT,
     },
 ]
